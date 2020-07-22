@@ -1,10 +1,11 @@
 package edu.txstate.bss64;
 
-import java.net.*;
-import java.io.*;
-import java.util.Arrays;
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.SocketException;
 
-public class UDPServer {
+public class UDPServerCmdExec {
     public static void main(String[] args) {
         DatagramSocket aSocket = null;
         try {
