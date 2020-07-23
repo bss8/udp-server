@@ -2,13 +2,13 @@ package edu.txstate.bss64;
 
 import java.net.*;
 import java.io.*;
-import java.util.Arrays;
 
+/**
+ * Basic UDP Server, which will reply to a received message by simply returning it as-is to the client.
+ */
 public class UDPServer {
     public static void main(String[] args) {
-        DatagramSocket aSocket = null;
-        try {
-            aSocket = new DatagramSocket(6789);
+        try (DatagramSocket aSocket = new DatagramSocket(6789)) {
             byte[] buffer = new byte[1000];
             while (true) {
                 DatagramPacket request = new DatagramPacket(buffer, buffer.length);
@@ -20,8 +20,6 @@ public class UDPServer {
             System.out.println("Socket: " + e.getMessage());
         } catch (IOException e) {
             System.out.println("IO: " + e.getMessage());
-        } finally {
-            if (aSocket != null) aSocket.close();
         }
     }
 }
