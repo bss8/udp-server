@@ -8,21 +8,18 @@ import java.net.DatagramSocket;
 import java.net.SocketException;
 import java.nio.charset.StandardCharsets;
 
-public class UDPServerCmdExec {
+public class UDPServerCmdExec extends Server implements ServerBehavior {
     public static void main(String[] args) {
-        try (DatagramSocket aSocket = new DatagramSocket(6789)) {
-            byte[] buffer = new byte[1000];
-            while (true) {
-                DatagramPacket request = new DatagramPacket(buffer, buffer.length);
-                aSocket.receive(request);
+        System.out.println("Starting up command execution UDP Server listening on port 2587.....\n");
 
-                byte[] clientData = request.getData();
-                String stringClientData = new String(clientData, StandardCharsets.UTF_8);
+        try (DatagramSocket aSocket = new DatagramSocket(2587)) {
+            while (true) {
+                DatagramPacket request = ServerBehavior.receiveReplyFromClient(aSocket);
+
+                String stringClientData = displayReceivedMessage(request);
                 stringClientData = runCmd(stringClientData);
 
-                clientData = stringClientData.getBytes();
-                DatagramPacket reply = new DatagramPacket(clientData, clientData.length, request.getAddress(), request.getPort());
-                aSocket.send(reply);
+                ServerBehavior.sendReplyBackToClient(aSocket, request, stringClientData);
             }
         } catch (SocketException e) {
             System.out.println("Socket: " + e.getMessage());

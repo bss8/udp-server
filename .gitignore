@@ -75,3 +75,7 @@ mvnw.cmd
 /nbdist/
 /.nb-gradle/
 build/
+
+### Project specific
+sources_win.txt
+sources_nix.txt
