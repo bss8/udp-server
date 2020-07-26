@@ -24,7 +24,11 @@ import java.net.DatagramSocket;
 import java.nio.charset.StandardCharsets;
 
 /**
+ * This interface defines a number of static helper functions. Intent is to improve code readability and reduce
+ * duplication.
+ * This way we stay closer to the single-responsibility model of function declaration.
  * https://docs.oracle.com/javase/tutorial/java/IandI/defaultmethods.html#static
+ *
  * @author Borislav S. Sabotinov
  */
 public interface ServerBehavior {
@@ -33,7 +37,8 @@ public interface ServerBehavior {
     int PORT = 2587;
 
     /**
-     * Prints a message to standard output.
+     * Helper function which prints a message received form a client to standard output.
+     * It returns a String representation of the client message
      * @param request message received from a UDP Client
      */
     static String displayReceivedMessage(DatagramPacket request) {
@@ -52,18 +57,33 @@ public interface ServerBehavior {
         return stringClientData;
     }
 
+    /**
+     * Defines how a server should receive a message from a client.
+     *
+     * @param aSocket a DataGram socket. Each server is responsible for creating their own instance, preferrably
+     *                in a try-with-resources block to take advantage of the Closeable interface which DatagramSocket
+     *                implements.
+     * @return
+     * @throws IOException
+     */
     static DatagramPacket receiveReplyFromClient(DatagramSocket aSocket) throws IOException {
-        // moved declaration and initialization inside while loop to clear buffer
-        // to properly display only the current message received from a client.
-        // This ensures no new message data is mixed with an old message.
-        //byte[] buffer = new byte[1000];
+        // Reset buffer each time we receive a reply, so we can clear previous buffer to properly display only the
+        // current message received from a client. This ensures no new message data is mixed with an old message.
         byte[] buffer = new byte[1000];
         DatagramPacket request = new DatagramPacket(buffer, buffer.length);
-        //request = new DatagramPacket(buffer, buffer.length);
         aSocket.receive(request);
         return request;
     }
 
+    /**
+     * Defines how a server should reply back to the client.
+     * @param aSocket Each server is responsible for creating their own instance, preferrably
+     *                in a try-with-resources block to take advantage of the Closeable interface which DatagramSocket
+     *                implements.
+     * @param request The request which was received from the client
+     * @param stringClientData String representation of the client data received
+     * @throws IOException
+     */
     static void sendReplyBackToClient(DatagramSocket aSocket, DatagramPacket request, String stringClientData) throws IOException {
         byte[] clientData = stringClientData.getBytes();
         DatagramPacket reply = new DatagramPacket(clientData, clientData.length, request.getAddress(), request.getPort());

@@ -18,28 +18,40 @@
 package edu.txstate.bss64;
 
 import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.SocketException;
+import java.net.*;
 
 public class UDPServerCmdExec implements ServerBehavior {
     private static String OS;
 
-    public static void main(String[] args) {
-
+    public static void main(String... args) throws UnknownHostException {
         OS = System.getProperty("os.name");
-        try (DatagramSocket aSocket = new DatagramSocket(2587)) {
+        System.out.println("Starting up command execution UDP Server at " + InetAddress.getLocalHost() +
+                " running on " + OS + " listening on port 2587.....\n");
+        try (DatagramSocket aSocket = new DatagramSocket(PORT)) {
             while (true) {
-                System.out.println("Starting up command execution UDP Server on " + InetAddress.getLocalHost() + " listening on port 2587.....\n");
                 DatagramPacket request = ServerBehavior.receiveReplyFromClient(aSocket);
-
                 String stringClientData = ServerBehavior.displayReceivedMessage(request);
-                stringClientData = runCmd(stringClientData);
+                String[] decomposedCommand = stringClientData.split("\\s");
+                boolean isValidCmd;
+                if (OS.contains("Windows")) {
+                    isValidCmd = validateWindowsCmd(decomposedCommand[0]);
+                } else if (OS.contains("Linux")) {
+                    isValidCmd = validateLinuxCmd(decomposedCommand[0]);
+                } else {
+                    throw new UnsupportedOperationException("OS type is not supported!");
+                }
 
-                ServerBehavior.sendReplyBackToClient(aSocket, request, stringClientData);
+                if (isValidCmd) {
+                    System.out.println("Command validated....");
+                    stringClientData = runCmd(stringClientData);
+                    ServerBehavior.sendReplyBackToClient(aSocket, request, stringClientData);
+                } else {
+                    System.out.println("Server refused to execute, command is not valid or not supported on this OS!");
+                    ServerBehavior.sendReplyBackToClient(aSocket, request, "This server is running on an OS which does not support this command!");
+                }
             }
         } catch (SocketException e) {
             System.out.println("Socket: " + e.getMessage());
@@ -49,7 +61,49 @@ public class UDPServerCmdExec implements ServerBehavior {
     }
 
     /**
+     * @param cmd
+     * @return
+     */
+    private static boolean validateLinuxCmd(String cmd) {
+        return readCmdFile(cmd, "resources/linux_commands.txt");
+    }
+
+    /**
+     * @param cmd
+     * @return
+     */
+    private static boolean validateWindowsCmd(String cmd) {
+        return readCmdFile(cmd, "resources/windows_commands.txt");
+    }
+
+    /**
+     * try-with-resources block makes use of superclass Reader's implementation of the Closeable interface
+     * FileReader extends InputStreamReader, which in turn extends Reader
+     * BufferedReader extends Reader directly
      *
+     * @param cmd
+     * @param allowedCmdFile
+     * @return
+     */
+    private static boolean readCmdFile(String cmd, String allowedCmdFile) {
+        boolean isValidCmd = false;
+        try (FileReader fileReader = new FileReader(allowedCmdFile); // Throws FileNotFoundException
+             BufferedReader bufferedReader = new BufferedReader(fileReader)) {
+
+            String line;
+            while ((line = bufferedReader.readLine()) != null) {  // throws IOException, which is higher than FileNotFound
+                if (line.equals(cmd)) {
+                    isValidCmd = true;
+                    break;
+                }
+            }
+        } catch (IOException e) {
+            System.err.println(e.getMessage());
+        }
+        return isValidCmd;
+    }
+
+    /**
      * @param cmd command to execute
      * @return
      */

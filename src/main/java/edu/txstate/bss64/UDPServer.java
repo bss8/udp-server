@@ -22,12 +22,14 @@ import java.io.*;
 
 /**
  * Basic UDP Server, which will reply to a received message by simply returning it as-is to the client.
+ * It is the user's responsibility to specify how this client should be used - single message or iterative mode.
+ * This class implements interface ServerBehavior to improve readability and reduce duplication when UDPServerCmdExec
+ * is considered.
  */
-public class UDPServer  {
-    public static void main(String[] args) {
-        try (DatagramSocket aSocket = new DatagramSocket(ServerBehavior.PORT)) {
-            System.out.println("Starting up standard UDP Server listening on port 2587.....\n");
-
+public class UDPServer implements ServerBehavior {
+    public static void main(String... args) {
+        try (DatagramSocket aSocket = new DatagramSocket(PORT)) {
+            System.out.println("Starting up standard UDP Server listening on port " + PORT + ".....\n");
             while (true) {
                 DatagramPacket request = ServerBehavior.receiveReplyFromClient(aSocket);
                 String stringClientData = ServerBehavior.displayReceivedMessage(request);
