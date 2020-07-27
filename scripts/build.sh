@@ -18,13 +18,14 @@
 
 PKG_PATH=edu/txstate/bss64
 
-find -name ../"*.java" > sources_nix.txt
-javac @sources.txt
+find ../ -name "*.java" > sources_nix.txt
+javac @sources_nix.txt
 
 mkdir -p ../dist/${PKG_PATH}
-mv ../src/${PKG_PATH}/*.class ../dist/${PKG_PATH}
-copy ../src/META-INF ../dist
+mv ../src/main/java/${PKG_PATH}/*.class ../dist/${PKG_PATH}
+cp ../src/META-INF/MANIFEST.MF ../dist/
 
 cd ../dist
 jar cmvf MANIFEST.MF server.jar edu/*
+chmod 755 server.jar
 cd ../scripts

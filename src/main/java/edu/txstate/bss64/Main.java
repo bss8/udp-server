@@ -57,7 +57,11 @@ public class Main {
         if (usrInput.equals("1")) {
             UDPServer.main();
         } else if (usrInput.equals("2")) {
-
+            try {
+                UDPServerCmdExec.main();
+            } catch (UnknownHostException e) {
+                e.printStackTrace();
+            }
         } else {
             printHelp();
             throw new IllegalArgumentException("\nOption code not supported!");
