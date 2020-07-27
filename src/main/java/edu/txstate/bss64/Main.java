@@ -25,12 +25,15 @@ import java.util.Scanner;
 
 /**
  * @author Borislav S. Sabotinov
+ * Provides a main entry point for a user to initialize a server of their choice.
+ * Can either be standard UDP Server or command execution UDP Server.
  */
 public class Main {
     private static String IP_ADDR;
     private static String OS;
     private static String HOST;
 
+    // static init block to get the IP address and OS name of the machine on which client will run
     static {
         try (final DatagramSocket socket = new DatagramSocket()) {
             socket.connect(InetAddress.getByName("8.8.8.8"), 10002);
@@ -42,6 +45,11 @@ public class Main {
         OS = System.getProperty("os.name");
     }
 
+    /**
+     * We print instructions to the screen and prompt the user to enter an option code (1-2), regarding
+     * what type of server they want to initiate.
+     * @param args
+     */
     public static void main(String... args) {
         printHelp();
         Scanner scanner = new Scanner(System.in);
@@ -56,6 +64,9 @@ public class Main {
         }
     }
 
+    /**
+     * Prints instructions for the user, explaining how to use this program.
+     */
     private static void printHelp() {
         System.out.print("Enter 1 to start a standard message server, 2 for command execution server.\n" +
                 "java -jar server.jar <OPT_CODE>\n");

@@ -27,9 +27,14 @@ import java.io.*;
  * is considered.
  */
 public class UDPServer implements ServerBehavior {
+    /**
+     *
+     * @param args not used
+     */
     public static void main(String... args) {
         try (DatagramSocket aSocket = new DatagramSocket(PORT)) {
-            System.out.println("Starting up standard UDP Server listening on port " + PORT + ".....\n");
+            System.out.println("Starting up standard UDP Server at " + InetAddress.getLocalHost() +
+                    " running on " + OS + " listening on port " + PORT + ".....\n");
             while (true) {
                 DatagramPacket request = ServerBehavior.receiveReplyFromClient(aSocket);
                 String stringClientData = ServerBehavior.displayReceivedMessage(request);
@@ -41,4 +46,4 @@ public class UDPServer implements ServerBehavior {
             System.out.println("IO: " + e.getMessage());
         }
     }
-}
+} // end class UDPServer

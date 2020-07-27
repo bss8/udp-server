@@ -39,7 +39,6 @@ hs_err_pid*
 
 # eclipse specific
 *.pydevproject
-.project
 .metadata
 bin/**
 tmp/**
@@ -49,7 +48,6 @@ tmp/**/*
 *.swp
 *~.nib
 local.properties
-.classpath
 .settings/
 .loadpath
 ### IntelliJ IDEA ###

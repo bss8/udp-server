@@ -13,6 +13,7 @@ rem
 rem You should have received a copy of the GNU Affero General Public License
 rem along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+rem Author: Borislav S. Sabotinov
 rem this script assumes that the server JAR exists under the dist directory created at the root level
 rem by the build script.
 rem If you use IntelliJ, this will be the default auto-generated directory structure

@@ -28,6 +28,7 @@ import java.nio.charset.StandardCharsets;
  * duplication.
  * This way we stay closer to the single-responsibility model of function declaration.
  * https://docs.oracle.com/javase/tutorial/java/IandI/defaultmethods.html#static
+ * The OS name is determined here and the PORT value may be changed as needed.
  *
  * @author Borislav S. Sabotinov
  */
@@ -35,6 +36,7 @@ public interface ServerBehavior {
     //index 2 = direct caller, can be self but abstract may not be instantiated
     int DIRECT_CALLER_IDX = 2;
     int PORT = 2587;
+    String OS = System.getProperty("os.name");
 
     /**
      * Helper function which prints a message received form a client to standard output.
@@ -63,13 +65,13 @@ public interface ServerBehavior {
      * @param aSocket a DataGram socket. Each server is responsible for creating their own instance, preferrably
      *                in a try-with-resources block to take advantage of the Closeable interface which DatagramSocket
      *                implements.
-     * @return
+     * @return DatagramSocket that will be used later when sending the reply
      * @throws IOException
      */
     static DatagramPacket receiveReplyFromClient(DatagramSocket aSocket) throws IOException {
         // Reset buffer each time we receive a reply, so we can clear previous buffer to properly display only the
         // current message received from a client. This ensures no new message data is mixed with an old message.
-        byte[] buffer = new byte[1000];
+        byte[] buffer = new byte[1024];
         DatagramPacket request = new DatagramPacket(buffer, buffer.length);
         aSocket.receive(request);
         return request;
@@ -89,4 +91,4 @@ public interface ServerBehavior {
         DatagramPacket reply = new DatagramPacket(clientData, clientData.length, request.getAddress(), request.getPort());
         aSocket.send(reply);
     }
-}
+} // end ServerBehavior interface

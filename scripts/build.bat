@@ -22,7 +22,7 @@ dir /s /B ..\*.java > sources_win.txt
 
 javac @sources_win.txt
 mkdir ..\dist\%PKG_PATH%
-move ..\src\%PKG_PATH%\*.class ..\dist\%PKG_PATH%
+move ..\src\main\java\%PKG_PATH%\*.class ..\dist\%PKG_PATH%
 copy ..\src\META-INF ..\dist
 
 cd ..\dist

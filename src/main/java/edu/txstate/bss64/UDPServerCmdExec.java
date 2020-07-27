@@ -23,26 +23,27 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.*;
 
+/**
+ * @author Borislav S. Sabotinov
+ * Command execution UDP server. Implements ServerBehavior, which defines standard server behavior such as receiving
+ * messages from a client and sending a reply.
+ */
 public class UDPServerCmdExec implements ServerBehavior {
-    private static String OS;
-
+    /**
+     *
+     * @param args not used
+     * @throws UnknownHostException
+     */
     public static void main(String... args) throws UnknownHostException {
-        OS = System.getProperty("os.name");
         System.out.println("Starting up command execution UDP Server at " + InetAddress.getLocalHost() +
-                " running on " + OS + " listening on port 2587.....\n");
+                " running on " + OS + " listening on port " + PORT + ".....\n");
         try (DatagramSocket aSocket = new DatagramSocket(PORT)) {
             while (true) {
                 DatagramPacket request = ServerBehavior.receiveReplyFromClient(aSocket);
                 String stringClientData = ServerBehavior.displayReceivedMessage(request);
-                String[] decomposedCommand = stringClientData.split("\\s");
-                boolean isValidCmd;
-                if (OS.contains("Windows")) {
-                    isValidCmd = validateWindowsCmd(decomposedCommand[0]);
-                } else if (OS.contains("Linux")) {
-                    isValidCmd = validateLinuxCmd(decomposedCommand[0]);
-                } else {
-                    throw new UnsupportedOperationException("OS type is not supported!");
-                }
+                String[] decomposedCommand = stringClientData.split("\\s");  // separate cmd by space delimiter
+
+                boolean isValidCmd = validateCommand(decomposedCommand[0]);
 
                 if (isValidCmd) {
                     System.out.println("Command validated....");
@@ -61,7 +62,29 @@ public class UDPServerCmdExec implements ServerBehavior {
     }
 
     /**
-     * @param cmd
+     * Validate the command received from the client using the OS specific resource files.
+     * resources/linux_commands.txt and resources/windows_commands.txt files contain lists of
+     * available commands that can be performed by the respective OS. If the user's command is in the list,
+     * server can attempt to execute it, otherwise not.
+     * @param firstCommandComponent we only need the first part of the client provided command, not the argument,
+     *                              to determine if the OS supports it.
+     * @return true if command is available on the server's OS, false otherwise.
+     */
+    private static boolean validateCommand(String firstCommandComponent) {
+        boolean isValidCmd;
+        if (OS.contains("Windows")) {
+            isValidCmd = validateWindowsCmd(firstCommandComponent);
+        } else if (OS.contains("Linux")) {
+            isValidCmd = validateLinuxCmd(firstCommandComponent);
+        } else {
+            throw new UnsupportedOperationException("OS type is not supported!");
+        }
+        return isValidCmd;
+    }
+
+    /**
+     * If the server is running on a Linux OS, attempt to validate the command using the Linux list
+     * @param cmd first part of the client provided command
      * @return
      */
     private static boolean validateLinuxCmd(String cmd) {
@@ -69,7 +92,8 @@ public class UDPServerCmdExec implements ServerBehavior {
     }
 
     /**
-     * @param cmd
+     * If the server is running on a Windows OS, attempt to validate the command using the Windows list
+     * @param cmd first part of the client provided command
      * @return
      */
     private static boolean validateWindowsCmd(String cmd) {
@@ -81,9 +105,9 @@ public class UDPServerCmdExec implements ServerBehavior {
      * FileReader extends InputStreamReader, which in turn extends Reader
      * BufferedReader extends Reader directly
      *
-     * @param cmd
-     * @param allowedCmdFile
-     * @return
+     * @param cmd first part of the client provided command
+     * @param allowedCmdFile either Linux or Windows resource file for validating the command
+     * @return true if command is valid, false otherwise
      */
     private static boolean readCmdFile(String cmd, String allowedCmdFile) {
         boolean isValidCmd = false;
@@ -104,8 +128,9 @@ public class UDPServerCmdExec implements ServerBehavior {
     }
 
     /**
+     * Helper function that will attempt to execute the command (either Linux or Windows).
      * @param cmd command to execute
-     * @return
+     * @return String output returned from executing the command
      */
     private static String runCmd(String cmd) {
         StringBuilder output = null;
@@ -148,5 +173,4 @@ public class UDPServerCmdExec implements ServerBehavior {
         }
         return output != null ? output.toString() : null;
     }
-}
-
+} // end class UDPServerCmdExec
