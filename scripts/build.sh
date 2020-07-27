@@ -24,8 +24,9 @@ javac @sources_nix.txt
 mkdir -p ../dist/${PKG_PATH}
 mv ../src/main/java/${PKG_PATH}/*.class ../dist/${PKG_PATH}
 cp ../src/META-INF/MANIFEST.MF ../dist/
+copy ..\src\main\resources\* ..\dist
 
 cd ../dist
-jar cmvf MANIFEST.MF server.jar edu/*
+jar cmvf MANIFEST.MF server.jar edu/* *.txt
 chmod 755 server.jar
 cd ../scripts

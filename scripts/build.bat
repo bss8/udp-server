@@ -23,8 +23,9 @@ dir /s /B ..\*.java > sources_win.txt
 javac @sources_win.txt
 mkdir ..\dist\%PKG_PATH%
 move ..\src\main\java\%PKG_PATH%\*.class ..\dist\%PKG_PATH%
-copy ..\src\META-INF ..\dist
+copy ..\src\META-INF\MANIFEST.MF ..\dist
+copy ..\src\main\resources\* ..\dist
 
 cd ..\dist
-jar cmvf MANIFEST.MF server.jar edu\*
+jar cmvf MANIFEST.MF server.jar edu\* *.txt
 cd ..\scripts

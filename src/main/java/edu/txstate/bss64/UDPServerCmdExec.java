@@ -18,10 +18,18 @@
 package edu.txstate.bss64;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.*;
+
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.SocketException;
+import java.net.URL;
+import java.net.UnknownHostException;
+
 
 /**
  * @author Borislav S. Sabotinov
@@ -73,9 +81,9 @@ public class UDPServerCmdExec implements ServerBehavior {
     private static boolean validateCommand(String firstCommandComponent) {
         boolean isValidCmd;
         if (OS.contains("Windows")) {
-            isValidCmd = validateWindowsCmd(firstCommandComponent);
+            isValidCmd = determineIfCmdIsValid(firstCommandComponent, "windows_commands.txt");
         } else if (OS.contains("Linux")) {
-            isValidCmd = validateLinuxCmd(firstCommandComponent);
+            isValidCmd = determineIfCmdIsValid(firstCommandComponent, "linux_commands.txt");
         } else {
             throw new UnsupportedOperationException("OS type is not supported!");
         }
@@ -84,20 +92,16 @@ public class UDPServerCmdExec implements ServerBehavior {
 
     /**
      * If the server is running on a Linux OS, attempt to validate the command using the Linux list
+     * getClass().getResource() searches relative to the .class file, while
+     * getClass().getClassLoader().getResource() searches relative to the classpath root.
      * @param cmd first part of the client provided command
-     * @return
+     * @return true if cmd is valid, false otherwise
      */
-    private static boolean validateLinuxCmd(String cmd) {
-        return readCmdFile(cmd, "src/main/resources/linux_commands.txt");
-    }
-
-    /**
-     * If the server is running on a Windows OS, attempt to validate the command using the Windows list
-     * @param cmd first part of the client provided command
-     * @return
-     */
-    private static boolean validateWindowsCmd(String cmd) {
-        return readCmdFile(cmd, "src/main/resources/windows_commands.txt");
+    private static boolean determineIfCmdIsValid(String cmd, String resourceFileForOS) {
+        ClassLoader classLoader = UDPServerCmdExec.class.getClassLoader();
+        URL fileUrl = classLoader.getResource(resourceFileForOS);
+        File file = new File(fileUrl.getFile());
+        return readCmdFile(cmd, file);
     }
 
     /**
@@ -106,12 +110,12 @@ public class UDPServerCmdExec implements ServerBehavior {
      * BufferedReader extends Reader directly
      *
      * @param cmd first part of the client provided command
-     * @param allowedCmdFile either Linux or Windows resource file for validating the command
+     * @param osResourceFile either Linux or Windows resource file for validating the command
      * @return true if command is valid, false otherwise
      */
-    private static boolean readCmdFile(String cmd, String allowedCmdFile) {
+    private static boolean readCmdFile(String cmd, File osResourceFile) {
         boolean isValidCmd = false;
-        try (FileReader fileReader = new FileReader(allowedCmdFile); // Throws FileNotFoundException
+        try (FileReader fileReader = new FileReader(osResourceFile); // Throws FileNotFoundException
              BufferedReader bufferedReader = new BufferedReader(fileReader)) {
 
             String line;
