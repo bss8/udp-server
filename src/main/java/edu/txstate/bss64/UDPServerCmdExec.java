@@ -88,7 +88,7 @@ public class UDPServerCmdExec implements ServerBehavior {
      * @return
      */
     private static boolean validateLinuxCmd(String cmd) {
-        return readCmdFile(cmd, "resources/linux_commands.txt");
+        return readCmdFile(cmd, "src/main/resources/linux_commands.txt");
     }
 
     /**
@@ -97,7 +97,7 @@ public class UDPServerCmdExec implements ServerBehavior {
      * @return
      */
     private static boolean validateWindowsCmd(String cmd) {
-        return readCmdFile(cmd, "resources/windows_commands.txt");
+        return readCmdFile(cmd, "src/main/resources/windows_commands.txt");
     }
 
     /**
