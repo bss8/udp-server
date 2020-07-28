@@ -17,11 +17,7 @@
 
 package edu.txstate.bss64;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -99,24 +95,25 @@ public class UDPServerCmdExec implements ServerBehavior {
      */
     private static boolean determineIfCmdIsValid(String cmd, String resourceFileForOS) {
         ClassLoader classLoader = UDPServerCmdExec.class.getClassLoader();
-        URL fileUrl = classLoader.getResource(resourceFileForOS);
-        File file = new File(fileUrl.getFile());
-        return readCmdFile(cmd, file);
+        InputStream inputStream = classLoader.getResourceAsStream(resourceFileForOS);
+
+        return readCmdFile(cmd, inputStream);
     }
 
     /**
      * try-with-resources block makes use of superclass Reader's implementation of the Closeable interface
      * FileReader extends InputStreamReader, which in turn extends Reader
      * BufferedReader extends Reader directly
+     * But we cannot use a file directly: "If you need to read file content in JARs, you can not use File class directly."
+     * https://stackoverflow.com/questions/4755806/file-not-found-exception-in-jar
      *
      * @param cmd first part of the client provided command
-     * @param osResourceFile either Linux or Windows resource file for validating the command
+     * @param iStream either Linux or Windows resource file for validating the command, as an input stream
      * @return true if command is valid, false otherwise
      */
-    private static boolean readCmdFile(String cmd, File osResourceFile) {
+    private static boolean readCmdFile(String cmd, InputStream iStream) {
         boolean isValidCmd = false;
-        try (FileReader fileReader = new FileReader(osResourceFile); // Throws FileNotFoundException
-             BufferedReader bufferedReader = new BufferedReader(fileReader)) {
+        try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(iStream))) {
 
             String line;
             while ((line = bufferedReader.readLine()) != null) {  // throws IOException, which is higher than FileNotFound
