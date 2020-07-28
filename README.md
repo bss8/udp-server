@@ -3,6 +3,15 @@ UDP Server to receive messages and commands from a UDP Client
 
 May be invoked by a UDP client like this: https://github.com/bss8/udp-client
 
+Note: This project intentionally forgoes the convenience of using a build system like Maven 
+or Gradle and instead opts for manual configuration. The intent is to practice and understand 
+how Java is built and the convenience such systems offer. If building locally, you will 
+need to add JUnit 5.4 to your classpath if you wish to run unit tests. Otherwise, remove those 
+classes. 
+
+### Class Diagram 
+![UDP Server class diagram](src/main/resources/img/UDPServer.png)
+
 ## To Build
 #####Windows: 
 `cd scripts`    
