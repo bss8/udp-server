@@ -34,7 +34,6 @@ import java.net.UnknownHostException;
  */
 public class UDPServerCmdExec implements ServerBehavior {
     /**
-     *
      * @param args not used
      * @throws UnknownHostException
      */
@@ -45,7 +44,9 @@ public class UDPServerCmdExec implements ServerBehavior {
             while (true) {
                 DatagramPacket request = ServerBehavior.receiveReplyFromClient(aSocket);
                 String stringClientData = ServerBehavior.displayReceivedMessage(request);
-                String[] decomposedCommand = stringClientData.split("\\s");  // separate cmd by space delimiter
+                String[] decomposedCommand = stringClientData.contains(" ") ?
+                        stringClientData.split("\\s") :
+                        new String[]{stringClientData};  // separate cmd by space delimiter
 
                 boolean isValidCmd = validateCommand(decomposedCommand[0]);
 
@@ -70,6 +71,7 @@ public class UDPServerCmdExec implements ServerBehavior {
      * resources/linux_commands.txt and resources/windows_commands.txt files contain lists of
      * available commands that can be performed by the respective OS. If the user's command is in the list,
      * server can attempt to execute it, otherwise not.
+     *
      * @param firstCommandComponent we only need the first part of the client provided command, not the argument,
      *                              to determine if the OS supports it.
      * @return true if command is available on the server's OS, false otherwise.
@@ -90,6 +92,7 @@ public class UDPServerCmdExec implements ServerBehavior {
      * If the server is running on a Linux OS, attempt to validate the command using the Linux list
      * getClass().getResource() searches relative to the .class file, while
      * getClass().getClassLoader().getResource() searches relative to the classpath root.
+     *
      * @param cmd first part of the client provided command
      * @return true if cmd is valid, false otherwise
      */
@@ -107,7 +110,7 @@ public class UDPServerCmdExec implements ServerBehavior {
      * But we cannot use a file directly: "If you need to read file content in JARs, you can not use File class directly."
      * https://stackoverflow.com/questions/4755806/file-not-found-exception-in-jar
      *
-     * @param cmd first part of the client provided command
+     * @param cmd     first part of the client provided command
      * @param iStream either Linux or Windows resource file for validating the command, as an input stream
      * @return true if command is valid, false otherwise
      */
@@ -130,6 +133,7 @@ public class UDPServerCmdExec implements ServerBehavior {
 
     /**
      * Helper function that will attempt to execute the command (either Linux or Windows).
+     *
      * @param cmd command to execute
      * @return String output returned from executing the command
      */
